@@ -1,4 +1,3 @@
-
 version: "3.9"
 
 services:
@@ -6,15 +5,28 @@ services:
     build: ./backend
     ports:
       - "5000:5000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - FLASK_DEBUG=1
+      - FLASK_APP=main.py         # Cambiado a main.py según tu error anterior
+      - PYTHONPATH=/app           # SOLUCIÓN a ModuleNotFoundError
+      - CHOKIDAR_USEPOLLING=true
     env_file:
       - .env
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy # Espera a que la DB esté lista de verdad
 
   frontend:
     build: ./frontend
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules        # Volumen anónimo para no sobrescribir librerías
+    environment:
+      - CHOKIDAR_USEPOLLING=true
 
   postgres:
     image: postgres:15
@@ -24,6 +36,11 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:                  # SOLUCIÓN a errores de conexión inicial
+      test: ["CMD-SHELL", "pg_isready -U postgres -d evolution"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:
