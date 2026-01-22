@@ -2,15 +2,15 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 from app.services.evolution_service import EvolutionService
-from app.models.instance import Instance
+from app.models import Instance
 from app.extensions import db
-from app.utils.decorators import role_required
+from app.utils.decorators import superuser_required
 
 bp = Blueprint("instances", __name__, url_prefix="/instances")
 
 @bp.route("/", methods=["POST"])
 @jwt_required()
-@role_required("SUPER_ADMIN")
+@superuser_required
 def create_instance():
     data = request.json
     EvolutionService.create_instance(data["name"])

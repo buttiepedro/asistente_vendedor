@@ -1,15 +1,13 @@
 
-from flask_jwt_extended import get_jwt_identity
+from flask_jwt_extended import get_jwt
+from flask import jsonify
 from functools import wraps
-from flask import abort
 
-def role_required(*roles):
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            user = get_jwt_identity()
-            if user["role"] not in roles:
-                abort(403)
+def superuser_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        claims = get_jwt()
+        if claims.get("is_superuser"):
             return fn(*args, **kwargs)
-        return decorator
+        return jsonify({"msg": "Acceso restringido: Solo Superusuarios"}), 403
     return wrapper
