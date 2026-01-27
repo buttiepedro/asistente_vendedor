@@ -26,7 +26,7 @@ def login():
         identity=str(user.id),
         additional_claims={
             "id_company": user.company_id,
-            "is_superuser": user.is_superuser,
+            "is_superuser": user.is_superuser
         },
         expires_delta=timedelta(hours=8)
     )

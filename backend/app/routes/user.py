@@ -45,11 +45,16 @@ def get_users():
 def create_user():
   data = request.json
   new_user = User(
-    email=data["email"],
-    password_hash=data["password"],  # Asegúrate de hashear la contraseña en el modelo
+    email=data["email"],  # Asegúrate de hashear la contraseña en el modelo
     is_superuser=data.get("is_superuser", False),
     company_id=data.get("company_id")
   )
+
+  new_user.set_password(data["password"])
+
+  if new_user.email in [user.email for user in User.query.filter_by(email=new_user.email).all()]:
+    return jsonify({"error": "El email ya existe","state": True}), 400
+
   db.session.add(new_user)
   db.session.commit()
   return jsonify({"msg": "Usuario creado"})
