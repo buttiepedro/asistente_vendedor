@@ -11,7 +11,7 @@ const ProtectedRoute = ({ requiredRole }) => {
   if (!user) return <Navigate to="/login" />;
 
   // Lógica de jerarquía: Superuser entra a todo
-  // if (user.isSuperuser) return <Outlet />;
+  if (user.isSuperuser) return <Outlet />;
 
   // Si se requiere ser Admin y no lo es
   // if (requiredRole === "admin" && !user.isAdmin) {

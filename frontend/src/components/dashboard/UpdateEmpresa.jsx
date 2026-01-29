@@ -1,14 +1,21 @@
-export default function FormEmpresas({onSubmit, showForm, setShowForm}) {
+export default function UpdateEmpresa({showForm, setShowForm, onSubmit, empresa}) {
+  
   const resetForm = (e) => {
-    const form = document.getElementById("close-buttonEmpresa").closest("form");
+    const form = document.getElementById("close-buttonUpdateEmpresa").closest("form");
     form.reset();
   }
+
   return (
      <div className={`${showForm ? 'flex' : 'hidden'} absolute top-0 left-0 items-center justify-center p-12 w-screen h-screen bg-gray-900/50`}>
       <div className="mx-auto w-full max-w-[550px] bg-white p-8 rounded-lg shadow-lg">
-        <form onSubmit={onSubmit} className="relative z-20">
+        <form 
+          onSubmit={(e)=>{
+            e.preventDefault(),
+            onSubmit(empresa.id,{"name": e.target.nombre_empresa.value, "web_hook_url": e.target.webhook_empresa.value})}} 
+          className="relative z-20"
+        >
           <div className="absolute right-0">
-            <button onClick={() => (resetForm(), setShowForm(!showForm), document.body.style.overflow = showForm ? "auto" : "hidden")} id="close-buttonEmpresa" type="button" className="text-gray-400 hover:text-gray-600 cursor-pointer">
+            <button onClick={() => (resetForm(), setShowForm(!showForm), document.body.style.overflow = showForm ? "auto" : "hidden")} id="close-buttonUpdateEmpresa" type="button" className="text-gray-400 hover:text-gray-600 cursor-pointer">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
               </svg>
@@ -28,21 +35,22 @@ export default function FormEmpresas({onSubmit, showForm, setShowForm}) {
               required
               placeholder="Nombre de la empresa"
               className="focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md"
+              defaultValue={empresa?.name || ""}
             />
           </div>
           <div className="mb-5">
             <label
-              htmlFor="webhook_url"
+              htmlFor="webhook_empresa"
               className="mb-3 block text-base font-medium text-[#07074D]"
             >
-              Webhook URL
+              Webhook de la Empresa
             </label>
             <input
               type="text"
-              name="webhook_url"
-              id="webhook_url"
-              required
-              placeholder="Ingrese la URL del webhook"
+              name="webhook_empresa"
+              defaultValue={empresa?.web_hook_url || ""}
+              id="webhook_empresa"
+              placeholder="Webhook de la empresa"
               className="focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md"
             />
           </div>
@@ -51,7 +59,7 @@ export default function FormEmpresas({onSubmit, showForm, setShowForm}) {
               type="submit"
               className="hover:shadow-form rounded-md bg-blue-900 py-3 px-8 text-base font-semibold text-white outline-none hover:bg-blue-800 cursor-pointer"
             >
-              Crear Empresa
+              Actualizar Empresa
             </button>
           </div>
         </form>

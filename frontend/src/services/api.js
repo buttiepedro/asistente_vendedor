@@ -18,4 +18,16 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// https://evolution-api-production-58c5b.up.railway.app
+const evoApi = axios.create({
+  baseURL: "https://evolution-api-production-58c5b.up.railway.app",
+  headers: {
+    "Content-Type": "application/json",
+    "apikey": "76aabb909d979783471de3b9e3d52348"
+  },
+})
+
+
+
 export default api
+export { evoApi }

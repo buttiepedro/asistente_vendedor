@@ -1,0 +1,126 @@
+import { use, useEffect,useState } from "react"
+import api from "../../services/api"
+import { useAuth } from "../../context/AuthContext"
+import Qr from "../Qr"
+import ConnectionCard from "../ConnectionCard"
+import ConnectionCardSkeleton from "../Skeleton/ConnectionCardSkeleton"
+import ConfirmationModal from '../ConfirmationModal.jsx'
+
+export default function Dashboard() {
+  const { user } = useAuth()
+  const [showModal, setShowModal] = useState(false)
+  const [instances, setInstances] = useState([])
+  const [instancesBack, setInstancesBack] = useState([])
+  const [QrData, setQrData] = useState(null)
+  const [showQr, setShowQr] = useState(false)
+  const [loading, setLoading] = useState(true)
+
+  const [error, setError] = useState()
+  const [errorCrear, setErrorCrear] = useState({
+    error: null, 
+    state: false,
+  })
+
+  useEffect(() => {
+    getInstanceBack()
+    setQrData(null)
+  }, [showQr])
+
+    const getInstance = () => {
+    api.get("/instances/")
+      .then(res => {
+        setLoading(false)
+        setInstances(res.data)
+        console.log(res.data)
+      })
+      .catch(err => {
+        console.error("Error en evoApi:", err)
+      }
+    )   
+  }
+
+  const getInstanceBack = () => {
+    api.get("/instances/instancesdb")
+      .then(res => {
+        setInstancesBack(res.data)
+        getInstance()
+      })
+      .catch(err => {
+        console.error("Error en evoApi:", err)
+      }
+    )   
+  }
+  
+  const conectarInstancia = (instanceName) => {
+    api.get(`/instances/qr/${instanceName}`)
+      .then(res => {
+        setQrData(res.data)
+      })
+      .catch(err => {
+        console.error("Error en evoApi:", err)
+      }
+    ).then(() => {
+      getInstance()
+      setLoading(false)
+    })
+    window.scrollTo(0, 0);
+    document.body.style.overflow = "hidden"
+    setShowQr(true)
+  }
+
+  const desconectarInstancia = (instanceName) => {
+    api.delete(`/instances/logout/${instanceName}`)
+      .then(res => {
+        getInstance()
+        setQrData(null)
+      })
+      .catch(err => {
+        console.error("Error en evoApi:", err)
+      }
+    )
+  }
+
+  return (
+    <>
+      <div className="">
+        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold tracking-tight text-sky-950">Mis Lineas</h1>
+        </div>
+      </div>
+      <Qr qrCodeUrl={QrData?.base64} showQr={showQr} setShowQr={setShowQr} />
+        <div className="flex flex-row justify-center gap-6 flex-wrap mb-8">
+        {loading ? 
+          instancesBack.map((_, index) => (
+            <ConnectionCardSkeleton key={index} />
+          ))
+         : 
+         <>
+          {instances.map((instance) => (
+            <>
+            <ConnectionCard 
+              title={instance.name} 
+              name={instance.profileName}  
+              phone={instance.ownerJid?.split('@')[0]} 
+              followers={instance._count.Contact} 
+              messages={instance._count.Message} 
+              avatarUrl={instance.profilePicUrl} 
+              estado={instance.connectionStatus}
+              conectarInstancia={() => conectarInstancia(instance.name)}
+              desconectarInstancia={() => setShowModal(true)}
+            /> 
+            <ConfirmationModal 
+              isOpen={showModal} 
+              onClose={() => setShowModal(false)} 
+              onConfirm={() => desconectarInstancia(instance.name)}
+              title="Confirmar Desconexión"
+              message={`¿Estás seguro de que quieres desconectar el número ${instance.ownerJid?.split('@')[0]}?`}
+            />
+            </>
+          ))}
+          </>
+        }
+        
+        </div>
+    </>
+  )
+}

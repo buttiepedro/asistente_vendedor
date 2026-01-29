@@ -1,24 +1,36 @@
 import { useEffect,useState } from "react"
 import api from "../../services/api"
-
 import { useAuth } from "../../context/AuthContext"
 import TablaEmpresas from "./TablaEmpresas"
 import TablaUsuarios from "./TablaUsuarios"
 import FormUsuarios from "./FormUsuarios"
 import FormEmpresas from "./FormEmpresas"
 import Pagination from "../Pagination.jsx"
+import ConfirmationModal from "../ConfirmationModal.jsx"
+import UpdateEmpresa from "./UpdateEmpresa.jsx"
+import FormInstance from "./FormInstance.jsx"
+import SuccessToast from "../SuccessToast.jsx"
+import TablaInstancias from "./TablaInstacias.jsx"
 
 
 export default function Dashboard() {
   // Estado para completar formulario de creacion de usuarios
   const { user } = useAuth()
   // lista de empresas y usuarios 
+  const [showModal, setShowModal] = useState(false)
   const [empresas, setEmpresas] = useState([])
   const [usuarios, setUsuarios] = useState([])
   const [showFormUsuarios, setShowFormUsuarios] = useState(false)
+  const [showFormInstances, setShowFormInstances] = useState(false)
   const [errorCrearUsuario, setErrorCrearUsuario] = useState({state: false, error: ''})
   const [showFormEmpresas, setShowFormEmpresas] = useState(false)
   const [errorCrearEmpresa, setErrorCrearEmpresa] = useState({state: false, error: ''})
+  const [instancesBack, setInstancesBack] = useState([])
+  const [errorCrearInstancia, setErrorCrearInstancia] = useState({state: false, error: ''})
+  const [loading, setLoading] = useState(true)
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
   const [usuariosPagination, setUsuariosPagination] = useState({
     current_page: 1,
     total_items: 0,
@@ -35,42 +47,11 @@ export default function Dashboard() {
   // lista de empresa para llenar formulario
   const [listEmpresas, setListEmpresas] = useState([])
 
-  // Fetch empresas
   useEffect(() => {
-    api.get(`/companies/pagination?page=${empresasPagination.current_page}`)
-      .then(res => {
-        setEmpresas(res.data.companies)
-        setEmpresasPagination({
-          ...empresasPagination,
-          total_items: res.data.pagination.total_items,
-          total_pages: res.data.pagination.total_pages,
-        })
-      })
-      .catch(err => {
-        console.error("Error fetching companies:", err)
-      }
-    )
-    api.get(`/users/?page=${usuariosPagination.current_page}`)
-      .then(res => {
-        setUsuarios(res.data.users)
-        setUsuariosPagination({
-          ...usuariosPagination,
-          total_items: res.data.pagination.total_items,
-          total_pages: res.data.pagination.total_pages,
-        })
-      })
-      .catch(err => {
-        console.error("Error fetching users:", err)
-      }
-    )
-    api.get("/companies/")
-      .then(res => {
-        setListEmpresas(res.data)
-      })
-      .catch(err => {
-        console.error("Error fetching companies:", err)
-      }
-    )
+    getEmpresasPagination()
+    getUsuariosPagination()
+    getEmpresas()
+    getInstanceBack()
   }, [
     empresas.length, 
     usuarios.length,
@@ -78,6 +59,21 @@ export default function Dashboard() {
     empresasPagination.current_page,
     listEmpresas.length
   ])
+
+  useEffect(() => {
+    getInstanceBack()
+  }, [instancesBack.length])
+
+  const getInstanceBack = () => {
+    api.get("/instances/instancesdb")
+      .then(res => {
+        setInstancesBack(res.data)
+      })
+      .catch(err => {
+        console.error("Error en evoApi:", err)
+      }
+    )   
+  }
 
   const handleShowFormUsuarios = () => {
     setShowFormUsuarios(!showFormUsuarios)
@@ -116,17 +112,61 @@ export default function Dashboard() {
     const formData = new FormData(e.target);
     const data = {
       name: formData.get("nombre_empresa"),
+      web_hook_url: formData.get("webhook_url"),
     }
     api.post("/companies/", data)
       .then(res => {
         setErrorCrearEmpresa({state: false, error: ''})
         setShowFormEmpresas(false)
         document.body.style.overflow = "auto"
-        empresas.push(res.data)
+        getEmpresasPagination();
       }
       )
       .catch(err => {
         setErrorCrearEmpresa({state: true, error: err.response?.data?.msg || 'Error creando empresa'})
+      }
+    )
+  }
+
+  const getEmpresasPagination = (page) => {
+    api.get(`/companies/pagination?page=${empresasPagination.current_page}`)
+      .then(res => {
+        setEmpresas(res.data.companies)
+        setEmpresasPagination({
+          ...empresasPagination,
+          total_items: res.data.pagination.total_items,
+          total_pages: res.data.pagination.total_pages,
+        })
+      })
+      .catch(err => {
+        console.error("Error fetching companies:", err)
+      }
+    )
+  }
+
+  const getUsuariosPagination = (page) => {
+     api.get(`/users/?page=${usuariosPagination.current_page}`)
+      .then(res => {
+        setUsuarios(res.data.users)
+        setUsuariosPagination({
+          ...usuariosPagination,
+          total_items: res.data.pagination.total_items,
+          total_pages: res.data.pagination.total_pages,
+        })
+      })
+      .catch(err => {
+        console.error("Error fetching users:", err)
+      }
+    )
+  }
+
+  const getEmpresas = () => {
+    api.get("/companies/")
+      .then(res => {
+        setListEmpresas(res.data)
+      })
+      .catch(err => {
+        console.error("Error fetching companies:", err)
       }
     )
   }
@@ -171,6 +211,72 @@ export default function Dashboard() {
     )
   }
 
+  const actualizarEmpresa = (id, data) => {  
+    api.patch(`/companies/${id}`, data)
+      .then(res => {
+        getEmpresasPagination();
+        setShowUpdateForm(false);
+        document.body.style.overflow = "auto";
+      }
+      )
+      .catch(err => {
+        console.error("Error actualizando empresa:", err)
+      }
+    )
+  }
+
+  const llenarEmpresaUpdate = (id) => {
+    setEmpresaSeleccionada(empresas.find(e => e.id === id));
+    setShowUpdateForm(true);
+    document.body.style.overflow = "hidden";
+    window.scrollTo(0, 0);
+  }
+
+  const crearInstancia = (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.target);
+    const data = {
+      name: formData.get("name"),
+      company_id: parseInt(formData.get("company").split(' ')[0]),
+      evolution_name: formData.get("name"),
+      webhook_url: formData.get("company").split(' ')[1],
+      number: formData.get("number") || null,
+    }
+    api.post("/instances/", data)
+      .then(res => {
+        setErrorCrearInstancia({state: false, error: ''})
+        setShowFormInstances(false)
+        document.body.style.overflow = "auto"
+        getInstanceBack()
+      }
+      )
+      .catch(err => {
+        setErrorCrearInstancia({state: true, error: err.response?.data?.msg || 'Error creando instancia'})
+      }
+    ).success(() => {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    });
+  }
+
+  const handleShowFormInstances = () => {
+    setShowFormInstances(!showFormInstances)
+    document.body.style.overflow = showFormInstances ? "auto" : "hidden"
+  }
+
+  const eliminarInstancia = (id,name) => {
+    let confirmacion = confirm("¿Estás seguro de que deseas eliminar esta instancia? Esta acción no se puede deshacer.")
+    if (!confirmacion) return;
+    api.delete(`/instances/${name}/${id}`)
+      .then(res => {
+        setInstancesBack(instancesBack.filter(i => i.id !== id))
+      })
+      .catch(err => {
+        console.error("Error eliminando instancia:", err)
+      }
+    )
+  }
+
 
   return (
     <>
@@ -201,8 +307,20 @@ export default function Dashboard() {
             </svg>
           </span>
         </button>
+        <button
+          onClick={handleShowFormInstances}
+          className="mb-4 mx-2 rounded-md bg-blue-900 py-2 px-4 text-base font-semibold text-white hover:bg-blue-800 cursor-pointer"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6 hover:fill-white">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+          </svg>
+        </button>
       </div>
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 ">
+        <div className="overflow-auto">
+          <h2>Lista de Instancias</h2>
+          <TablaInstancias instancias={instancesBack} onEliminar={(id,name)=>{eliminarInstancia(id,name)}} />
+        </div>
         <div className="overflow-auto">
           <h2>Lista de Usuarios</h2>
           <TablaUsuarios usuarios={usuarios} onEliminar={eliminarUsuario} />
@@ -219,7 +337,7 @@ export default function Dashboard() {
         
         <div className="overflow-auto">
           <h2>Lista de Empresas</h2>
-          <TablaEmpresas empresas={empresas} onEliminar={eliminarEmpresa} />
+          <TablaEmpresas empresas={empresas} onEliminar={eliminarEmpresa} onUpdate={llenarEmpresaUpdate}/>
         </div>
         <Pagination 
           esEmpresas={true}
@@ -232,7 +350,14 @@ export default function Dashboard() {
         </Pagination>
 
         <FormUsuarios empresas={listEmpresas} onSubmit={crearUsuario} showForm={showFormUsuarios} setShowForm={setShowFormUsuarios} error={errorCrearUsuario} setError={setErrorCrearUsuario} />
-        <FormEmpresas onSubmit={crearEmpresa} showForm={showFormEmpresas} setShowForm={setShowFormEmpresas}  />
+        <FormEmpresas onSubmit={crearEmpresa} showForm={showFormEmpresas} setShowForm={setShowFormEmpresas} />
+        <FormInstance empresas={listEmpresas} onSubmit={crearInstancia} showForm={showFormInstances} setShowForm={setShowFormInstances} />
+        <UpdateEmpresa showForm={showUpdateForm} setShowForm={setShowUpdateForm} empresa={empresaSeleccionada} onSubmit={actualizarEmpresa}/>
+        <SuccessToast 
+        isOpen={showToast} 
+        message="¡Empresa Creada!" 
+        onClose={() => setShowToast(false)} 
+        />
       </div>
     </>
   )
