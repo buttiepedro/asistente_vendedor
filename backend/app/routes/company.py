@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required
 from app.extensions import db
 from app.utils.decorators import superuser_required
 from app.models import Company
+from app.models import Instance
 
 bp = Blueprint("companies", __name__, url_prefix="/companies")
 
@@ -38,8 +39,16 @@ def get_companies_paginated():
   total_items = db.session.query(Company).count()
   total_pages = ceil(total_items / per_page)
 
+  # 4. obtener las instancias asociadas a cada empresa
+  companies_with_instances = []
+  for company in companies:
+    instances = Instance.query.filter_by(company_id=company.id).all()
+    company_dict = company.to_dict()
+    company_dict["instances"] = [instance.to_dict() for instance in instances]
+    companies_with_instances.append(company_dict)
+
   return jsonify({
-    "companies":[c.to_dict() for c in companies],
+    "companies": companies_with_instances,
     'pagination': {
       'total_items': total_items,
       'total_pages': total_pages,
@@ -51,7 +60,7 @@ def get_companies_paginated():
 @superuser_required
 def create_company():
   data = request.json
-  new_company = Company(name=data["name"])
+  new_company = Company(name=data["name"], web_hook_url=data.get("web_hook_url"))  
   db.session.add(new_company)
   db.session.commit()
 
@@ -64,3 +73,14 @@ def delete_company(company_id):
   db.session.delete(company)
   db.session.commit()
   return jsonify({"msg": "Empresa eliminada"})
+
+@bp.patch("/<int:company_id>")
+@superuser_required
+def update_company(company_id):
+  company = Company.query.get_or_404(company_id)
+  data = request.json
+  company.name = data.get("name", company.name)
+  company.web_hook_url = data.get("web_hook_url", company.web_hook_url)
+  db.session.commit()
+
+  return jsonify({"msg": "Empresa actualizada"})

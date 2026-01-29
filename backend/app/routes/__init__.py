@@ -1,5 +1,5 @@
 
-from .instance_routes import bp as instance_bp
+from .instance_routes import instance_bp
 from .company import bp as company_bp
 from .user import bp as usuarios_bp
 from .login import bp as auth_bp

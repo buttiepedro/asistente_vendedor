@@ -5,6 +5,7 @@ class Company(db.Model):
   __tablename__ = "company"
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(120), nullable=False)
+  web_hook_url = db.Column(db.String(255))
   active = db.Column(db.Boolean, default=True)
 
   def to_dict(self):
@@ -12,6 +13,7 @@ class Company(db.Model):
       "id": self.id,
       "name": self.name,
       "active": self.active,
+      "web_hook_url": self.web_hook_url,
     }
 
 class Instance(db.Model):
@@ -19,7 +21,6 @@ class Instance(db.Model):
   name = db.Column(db.String(120))
   evolution_name = db.Column(db.String(120))
   company_id = db.Column(db.Integer, db.ForeignKey("company.id"))
-  active = db.Column(db.Boolean, default=True)
 
   company = db.relationship("Company")
 
@@ -29,7 +30,6 @@ class Instance(db.Model):
       "name": self.name,
       "evolution_name": self.evolution_name,
       "company": self.company.to_dict() if self.company else None,
-      "active": self.active,
     }
 
 class PhoneLine(db.Model):
