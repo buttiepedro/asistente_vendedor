@@ -172,8 +172,6 @@ export default function Dashboard() {
   }
 
   const eliminarEmpresa = (id) => {
-    let confirmacion = confirm("¿Estás seguro de que deseas eliminar esta empresa? Esta acción no se puede deshacer.")
-    if (!confirmacion) return;
     api.delete(`/companies/${id}`)
       .then(res => {
         setEmpresas(empresas.filter(e => e.id !== id))
@@ -199,8 +197,6 @@ export default function Dashboard() {
   }
 
   const eliminarUsuario = (id) => {
-    let confirmacion = confirm("¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.")
-    if (!confirmacion) return;
     api.delete(`/users/${id}`)
       .then(res => {
         setUsuarios(usuarios.filter(u => u.id !== id))
@@ -264,12 +260,10 @@ export default function Dashboard() {
     document.body.style.overflow = showFormInstances ? "auto" : "hidden"
   }
 
-  const eliminarInstancia = (id,name) => {
-    let confirmacion = confirm("¿Estás seguro de que deseas eliminar esta instancia? Esta acción no se puede deshacer.")
-    if (!confirmacion) return;
-    api.delete(`/instances/${name}/${id}`)
+  const eliminarInstancia = (data) => {
+    api.delete(`/instances/${data.name}/${data.id}`)
       .then(res => {
-        setInstancesBack(instancesBack.filter(i => i.id !== id))
+        setInstancesBack(instancesBack.filter(i => i.id !== data.id))
       })
       .catch(err => {
         console.error("Error eliminando instancia:", err)
@@ -319,7 +313,7 @@ export default function Dashboard() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 ">
         <div className="overflow-auto">
           <h2>Lista de Instancias</h2>
-          <TablaInstancias instancias={instancesBack} onEliminar={(id,name)=>{eliminarInstancia(id,name)}} />
+          <TablaInstancias instancias={instancesBack} onEliminar={(data)=>{eliminarInstancia(data)}} />
         </div>
         <div className="overflow-auto">
           <h2>Lista de Usuarios</h2>
