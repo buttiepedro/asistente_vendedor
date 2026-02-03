@@ -14,16 +14,6 @@ def create_superuser():
     app = create_app()
     
     with app.app_context():
-        db.create_all()
-        # Crear empresa si no existe
-        company = Company.query.filter_by(name='Administradores').first()
-        if not company:
-            company = Company(
-                name='Administradores'
-            )
-            db.session.add(company)
-            db.session.commit()
-            print("✔ Empresa Administradores creada")
 
         # Crear superusuario si no existe
         user = User.query.filter_by(email="superuser@admin.com").first()
@@ -31,7 +21,7 @@ def create_superuser():
             user = User(
                 email="superuser@admin.com",
                 is_superuser=True,
-                company_id=company.id
+                company_id=1
             )
             user.set_password("123")
             db.session.add(user)
