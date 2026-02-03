@@ -1,13 +1,18 @@
 
 import requests
+import os
 from flask import current_app
 
+
+
 class EvolutionService:
+    EVOLUTION_API_URL = os.getenv("EVOLUTION_API_URL")
+    EVOLUTION_API_KEY = os.getenv("EVOLUTION_API_KEY")
 
     @staticmethod
     def create_instance(name,webhook_url, number=None):
-        url = f"https://evolution-api-production-58c5b.up.railway.app/instance/create"
-        headers = {"apikey": "76aabb909d979783471de3b9e3d52348"}
+        url = f"{EvolutionService.EVOLUTION_API_URL}/instance/create"
+        headers = {"apikey": EvolutionService.EVOLUTION_API_KEY}
         return requests.post(url, json={
             "instanceName": name,
             "number": number, 
@@ -27,28 +32,28 @@ class EvolutionService:
 
     @staticmethod
     def get_qr(name):
-        url = f"https://evolution-api-production-58c5b.up.railway.app/instance/connect/{name}"
-        headers = {"apikey": "76aabb909d979783471de3b9e3d52348"}
+        url = f"{EvolutionService.EVOLUTION_API_URL}/instance/connect/{name}"
+        headers = {"apikey": EvolutionService.EVOLUTION_API_KEY}
         response = requests.get(url, headers=headers)
         return response
     
     @staticmethod
     def logout_instance(name):
-        url = f"https://evolution-api-production-58c5b.up.railway.app/instance/logout/{name}"
-        headers = {"apikey": "76aabb909d979783471de3b9e3d52348"}
+        url = f"{EvolutionService.EVOLUTION_API_URL}/instance/logout/{name}"
+        headers = {"apikey": EvolutionService.EVOLUTION_API_KEY}
         response = requests.delete(url, headers=headers)
         return response
     
     @staticmethod
     def fetch_instances():
-        url = f"https://evolution-api-production-58c5b.up.railway.app/instance/fetchInstances"
-        headers = {"apikey": "76aabb909d979783471de3b9e3d52348"}
+        url = f"{EvolutionService.EVOLUTION_API_URL}/instance/fetchInstances"
+        headers = {"apikey": EvolutionService.EVOLUTION_API_KEY}
         response = requests.get(url, headers=headers)
         return response
     
     @staticmethod
     def delete_instance(name):
-        url = f"https://evolution-api-production-58c5b.up.railway.app/instance/delete/{name}"
-        headers = {"apikey": "76aabb909d979783471de3b9e3d52348"}
+        url = f"{EvolutionService.EVOLUTION_API_URL}/instance/delete/{name}"
+        headers = {"apikey": EvolutionService.EVOLUTION_API_KEY}
         response = requests.delete(url, headers=headers)
         return response
