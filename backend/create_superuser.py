@@ -14,6 +14,7 @@ def create_superuser():
     app = create_app()
     
     with app.app_context():
+        db.create_all()
 
         # Crear superusuario si no existe
         user = User.query.filter_by(email="superuser@admin.com").first()
