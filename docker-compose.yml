@@ -14,6 +14,8 @@ services:
       - CHOKIDAR_USEPOLLING=true
     env_file:
       - .env
+    command: >
+      sh -c "flask db upgrade && python main.py"
     depends_on:
       postgres:
         condition: service_healthy # Espera a que la DB esté lista de verdad
