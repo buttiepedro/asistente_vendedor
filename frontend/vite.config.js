@@ -8,6 +8,9 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
+    allowedHosts: [
+      'asistentevendedor-front-production.up.railway.app'
+    ],
     host: true,
     watch: {
       usePolling: true,
