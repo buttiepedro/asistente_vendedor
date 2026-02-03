@@ -9,16 +9,19 @@ services:
       - ./backend:/app
     environment:
       - FLASK_DEBUG=1
-      - FLASK_APP=main.py         # Cambiado a main.py según tu error anterior
-      - PYTHONPATH=/app           # SOLUCIÓN a ModuleNotFoundError
+      - FLASK_APP=main.py
+      - PYTHONPATH=/app
       - CHOKIDAR_USEPOLLING=true
     env_file:
       - .env
+    # Se añade la ejecución del script entre la migración y el arranque de la app
     command: >
-      sh -c "flask db upgrade && python main.py"
+      sh -c "flask db upgrade && 
+             python create_superuser.py && 
+             python main.py"
     depends_on:
       postgres:
-        condition: service_healthy # Espera a que la DB esté lista de verdad
+        condition: service_healthy
 
   frontend:
     build: ./frontend
