@@ -12,7 +12,9 @@ load_dotenv()
 
 def create_superuser():
     app = create_app()
+    
     with app.app_context():
+        db.create_all()
         # Crear empresa si no existe
         company = Company.query.filter_by(name='Administradores').first()
         if not company:
