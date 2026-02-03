@@ -7,5 +7,5 @@ COPY . .
 # Aseguramos permisos
 RUN chmod +x entrypoint.sh
 
-# CAMBIO AQUÍ: Usamos el entrypoint para coordinar el arranque
-ENTRYPOINT ["./entrypoint.sh"]
+# CAMBIO: Usamos /bin/sh explícitamente para lanzar el script
+CMD ["/bin/sh", "./entrypoint.sh"]
