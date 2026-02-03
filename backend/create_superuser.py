@@ -26,14 +26,14 @@ def create_superuser():
             print("✔ Empresa Administradores creada")
 
         # Crear superusuario si no existe
-        user = User.query.filter_by(email=os.getenv('SUPERUSER_EMAIL')).first()
+        user = User.query.filter_by(email="superuser@admin.com").first()
         if not user:
             user = User(
-                email=os.getenv('SUPERUSER_EMAIL'),
+                email="superuser@admin.com",
                 is_superuser=True,
                 company_id=company.id
             )
-            user.set_password(os.getenv('SUPERUSER_PASSWORD'))
+            user.set_password("123")
             db.session.add(user)
             db.session.commit()
             print("✔ Superusuario creado")
