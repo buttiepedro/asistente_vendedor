@@ -1,10 +1,11 @@
-
 FROM python:3.11-slim
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-# Dar permisos de ejecución al script de inicio
+
+# Aseguramos permisos
 RUN chmod +x entrypoint.sh
 
-CMD ["python", "main.py"]
+# CAMBIO AQUÍ: Usamos el entrypoint para coordinar el arranque
+ENTRYPOINT ["./entrypoint.sh"]
