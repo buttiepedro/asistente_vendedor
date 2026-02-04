@@ -18,7 +18,7 @@ def create_app():
         resources={
             r"/*": {
                 "origins": [
-                    "https://asistentevendedor-front-production.up.railway.app",
+                    "https://asistentevendedor.plataformabit.com",
                     "http://localhost:5173" # Para que sigas pudiendo probar localmente
                 ]
             }
