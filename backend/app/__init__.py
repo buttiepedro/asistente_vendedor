@@ -15,7 +15,14 @@ def create_app():
     
     CORS(
         app,
-        resources={r"/*": {"origins": "https://asistentevendedor-front-production.up.railway.app"}},
+        resources={
+            r"/*": {
+                "origins": [
+                    "https://asistentevendedor-front-production.up.railway.app",
+                    "http://localhost:5173" # Para que sigas pudiendo probar localmente
+                ]
+            }
+        },
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
