@@ -78,6 +78,7 @@ export default function Dashboard() {
   const handleShowFormUsuarios = () => {
     setShowFormUsuarios(!showFormUsuarios)
     document.body.style.overflow = showFormUsuarios ? "auto" : "hidden"
+    window.scrollTo(0, 0);
   }
 
   const crearUsuario = (e) => {
@@ -94,6 +95,7 @@ export default function Dashboard() {
         setShowFormUsuarios(false)
         document.body.style.overflow = "auto"
         usuarios.push(res.data)
+        window.scrollTo(0, 0);
       }
       )
       .catch(err => {
@@ -105,6 +107,7 @@ export default function Dashboard() {
   const handleShowFormEmpresas = () => {
     setShowFormEmpresas(!showFormEmpresas)
     document.body.style.overflow = showFormEmpresas ? "auto" : "hidden"
+    window.scrollTo(0, 0);
   }
 
   const crearEmpresa = (e) => {
@@ -258,6 +261,7 @@ export default function Dashboard() {
   const handleShowFormInstances = () => {
     setShowFormInstances(!showFormInstances)
     document.body.style.overflow = showFormInstances ? "auto" : "hidden"
+    window.scrollTo(0, 0);
   }
 
   const eliminarInstancia = (data) => {
