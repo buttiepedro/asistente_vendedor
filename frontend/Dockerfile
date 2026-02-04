@@ -15,4 +15,4 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Railway necesita saber que el puerto es el 80
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/sh", "-c", "sed -i 's/listen 80;/listen '\"$PORT\"';/g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
