@@ -3,15 +3,16 @@ FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
-COPY . .
+COPY . . 
+# Añade esta línea para debuguear si los archivos están ahí
+RUN ls -la 
 RUN npm run build
 
-# Etapa de Producción
 FROM nginx:stable-alpine
-# Copiamos nuestro archivo de configuración personalizado
 COPY nginx.conf /etc/nginx/conf.d/default.conf
-# Copiamos el build de Vite
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Railway necesita saber que el puerto es el 80
 EXPOSE 80
+
 CMD ["nginx", "-g", "daemon off;"]
