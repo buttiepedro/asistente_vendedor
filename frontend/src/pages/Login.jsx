@@ -19,16 +19,17 @@ export default function Login() {
       email: email,
       password: password
     }
+    setLoading(true)
     api.post("/auth/login", credentials)
       .then(res => {
-        setLoading(true)
         login(res.data.access_token, rememberMe)
-        // carga 3 segundos el spinner
-        console.log("Login exitoso")
         navigate("/dashboard");
       })
       .catch(err => {
         setError({state: true, error: err.data})
+      })
+      .finally(() => {
+        setLoading(false)
       })
   }
 
