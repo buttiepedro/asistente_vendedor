@@ -1,21 +1,17 @@
-# Etapa 1: Build
+# ... (Etapa de build igual a la anterior)
 FROM node:20-alpine AS build
 WORKDIR /app
-
-# Aprovechamos el caché de capas de Docker
 COPY package*.json ./
 RUN npm install
-
-# Copiamos el resto de los archivos y generamos el build
 COPY . .
 RUN npm run build
 
-# Etapa 2: Servidor estable con Nginx
+# Etapa de Producción
 FROM nginx:stable-alpine
-# Vite genera la salida en /app/dist por defecto
+# Copiamos nuestro archivo de configuración personalizado
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copiamos el build de Vite
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Exponemos el puerto 80 para el tráfico web
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
