@@ -1,6 +1,8 @@
 from flask import Blueprint, request
-from flask_jwt_extended import create_access_token
+from app.utils.decorators import superuser_required
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt
 from datetime import timedelta
+from app.extensions import db
 
 from app.models import User
 
@@ -34,3 +36,34 @@ def login():
     return {
         "access_token": token
     }, 200
+
+
+
+@bp.post("/reset-password")
+@jwt_required() # Requiere token válido
+@superuser_required # Requiere que el claim "is_superuser" sea True
+def admin_reset_password():
+    # 1. Obtener los claims (la info extra que pusiste en el login)
+    claims = get_jwt()
+    
+    # 2. Verificar si es superusuario
+    if not claims.get("is_superuser"):
+        return {"msg": "Acceso denegado. Se requieren permisos de superusuario"}, 403
+
+    data = request.get_json()
+    user_id_to_change = data.get("user_id")
+    new_password = data.get("new_password")
+
+    if not user_id_to_change or not new_password:
+        return {"msg": "Faltan datos (user_id o new_password)"}, 400
+
+    # 3. Buscar al usuario que queremos modificar
+    user = User.query.get(user_id_to_change)
+    if not user:
+        return {"msg": "Usuario no encontrado"}, 404
+
+    # 4. Cambiar contraseña (usando el método de tu modelo)
+    user.set_password(new_password) 
+    db.session.commit()
+
+    return {"msg": f"Contraseña de {user.email} actualizada por el administrador"}, 200

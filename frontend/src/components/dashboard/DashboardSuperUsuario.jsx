@@ -11,6 +11,7 @@ import UpdateEmpresa from "./UpdateEmpresa.jsx"
 import FormInstance from "./FormInstance.jsx"
 import SuccessToast from "../SuccessToast.jsx"
 import TablaInstancias from "./TablaInstacias.jsx"
+import UpdateUsuario from "./UpdateUsuario.jsx"
 
 
 export default function Dashboard() {
@@ -29,6 +30,9 @@ export default function Dashboard() {
   const [errorCrearInstancia, setErrorCrearInstancia] = useState({state: false, error: ''})
   const [loading, setLoading] = useState(true)
   const [showUpdateForm, setShowUpdateForm] = useState(false);
+  const [showUpdateFormUsuario, setShowUpdateFormUsuario] = useState(false);
+  const [usuarioSeleccionado, setUsuarioSeleccionado] = useState(null);
+  const [errorActualizarEmpresa, setErrorActualizarEmpresa] = useState({state: false, error: ''})
   const [showToast, setShowToast] = useState(false);
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
   const [usuariosPagination, setUsuariosPagination] = useState({
@@ -224,9 +228,29 @@ export default function Dashboard() {
     )
   }
 
+  const actualizarUsuario = (data) => {  
+    api.post(`/auth/reset-password`, data)
+      .then(res => {
+        getUsuariosPagination();
+        setShowUpdateFormUsuario(false);
+      }
+      )
+      .catch(err => {
+        console.error("Error actualizando usuario:", err)
+      }
+    )
+  }
+
   const llenarEmpresaUpdate = (id) => {
     setEmpresaSeleccionada(empresas.find(e => e.id === id));
     setShowUpdateForm(true);
+    document.body.style.overflow = "hidden";
+    window.scrollTo(0, 0);
+  }
+
+  const llenarUsuarioUpdate = (id) => {
+    setUsuarioSeleccionado(usuarios.find(u => u.id === id));
+    setShowUpdateFormUsuario(true);
     document.body.style.overflow = "hidden";
     window.scrollTo(0, 0);
   }
@@ -321,7 +345,7 @@ export default function Dashboard() {
         </div>
         <div className="overflow-auto">
           <h2>Lista de Usuarios</h2>
-          <TablaUsuarios usuarios={usuarios} onEliminar={eliminarUsuario} />
+          <TablaUsuarios usuarios={usuarios} onEliminar={eliminarUsuario} onUpdate={llenarUsuarioUpdate} />
         </div>
         <Pagination 
           esEmpresas={false}
@@ -351,6 +375,7 @@ export default function Dashboard() {
         <FormEmpresas onSubmit={crearEmpresa} showForm={showFormEmpresas} setShowForm={setShowFormEmpresas} />
         <FormInstance empresas={listEmpresas} onSubmit={crearInstancia} showForm={showFormInstances} setShowForm={setShowFormInstances} />
         <UpdateEmpresa showForm={showUpdateForm} setShowForm={setShowUpdateForm} empresa={empresaSeleccionada} onSubmit={actualizarEmpresa}/>
+        <UpdateUsuario showForm={showUpdateFormUsuario} setShowForm={setShowUpdateFormUsuario} usuario={usuarioSeleccionado} onSubmit={actualizarUsuario}/>
         <SuccessToast 
         isOpen={showToast} 
         message="¡Empresa Creada!" 
