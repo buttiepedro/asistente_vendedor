@@ -233,6 +233,7 @@ export default function Dashboard() {
       .then(res => {
         getUsuariosPagination();
         setShowUpdateFormUsuario(false);
+        document.body.style.overflow = "auto";
       }
       )
       .catch(err => {
