@@ -5,6 +5,7 @@ import Qr from "../Qr"
 import ConnectionCard from "../ConnectionCard"
 import ConnectionCardSkeleton from "../Skeleton/ConnectionCardSkeleton"
 import ConfirmationModal from '../ConfirmationModal.jsx'
+import userIMG from "../../assets/user.png"
 
 export default function Dashboard() {
   const { user } = useAuth()
@@ -103,7 +104,7 @@ export default function Dashboard() {
               phone={instance.ownerJid?.split('@')[0]} 
               followers={instance._count.Contact} 
               messages={instance._count.Message} 
-              avatarUrl={instance.profilePicUrl} 
+              avatarUrl={instance.profilePicUrl || userIMG} 
               estado={instance.connectionStatus}
               conectarInstancia={() => conectarInstancia(instance.name)}
               desconectarInstancia={() => setShowModal(true)}

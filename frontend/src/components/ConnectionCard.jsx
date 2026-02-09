@@ -8,7 +8,7 @@ const ConnectionCard = ({ title, name, phone, followers, messages, avatarUrl, es
           <div className="relative">
             <span className="rounded-full overflow-hidden block w-12 h-12 border border-slate-200">
               <img 
-                src={avatarUrl || "/api/placeholder/48/48"} 
+                src={avatarUrl} 
                 alt="Avatar" 
                 className=""
               />
