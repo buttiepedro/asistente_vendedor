@@ -12,10 +12,28 @@ instance_bp = Blueprint("instances", __name__, url_prefix="/instances")
 @jwt_required()
 def get_instances_db():
     claims = get_jwt()
+
+    page = int(request.args.get('page', 1))
+    per_page = int(request.args.get('per_page', 5))
+
+    # 2. Calcular offset y limit
+    offset = (page - 1) * per_page
+    limit = per_page
+
     if claims.get("is_superuser"):
-        instances = Instance.query.all()
+        instances = Instance.query.offset(offset).limit(limit).all()
         instances_dict = [instance.to_dict() for instance in instances]
-        return jsonify(instances_dict)
+        total_items = db.session.query(Instance).count()
+        total_pages = (total_items + per_page - 1) // per_page  #
+        return jsonify({
+            "instances": instances_dict,
+            'pagination': {
+                'total_items': total_items,
+                'total_pages': total_pages,
+                'current_page': page,
+                'per_page': per_page
+            }
+        })
     company = claims.get("id_company")
     instances = Instance.query.filter_by(company_id=company).all()
     instances_dict = [instance.to_dict() for instance in instances]

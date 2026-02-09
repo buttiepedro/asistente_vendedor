@@ -13,22 +13,28 @@ class EvolutionService:
     def create_instance(name,webhook_url, number=None):
         url = f"{EvolutionService.EVOLUTION_API_URL}/instance/create"
         headers = {"apikey": EvolutionService.EVOLUTION_API_KEY}
-        return requests.post(url, json={
-            "instanceName": name,
-            "number": number, 
-            "qrcode": False,
-            "integration": "WHATSAPP-BAILEYS",
-            "webhook": {
-                "url": webhook_url,
-                "byEvents": True,
-                "base64": True,
-                "headers": {
-                    "autorization": "Bearer TOKEN",
-                    "Content-Type": "application/json"
-                },
-                "events": ["MESSAGES_UPSERT"]
+        payload = {
+        "instanceName": name,
+        "qrcode": False,
+        "integration": "WHATSAPP-BAILEYS",
+        "webhook": {
+            "url": webhook_url,
+            "byEvents": True,
+            "base64": True,
+            "headers": {
+                "autorization": "Bearer TOKEN",
+                "Content-Type": "application/json"
+            },
+            "events": ["MESSAGES_UPSERT"]
             }
-        }, headers=headers)
+        }
+
+        # 2. Solo agregamos el número si el usuario lo proporcionó
+        if number:
+            payload["number"] = number
+
+        response = requests.post(url, json=payload, headers=headers)
+        return response
 
     @staticmethod
     def get_qr(name):
