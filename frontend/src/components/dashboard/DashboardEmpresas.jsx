@@ -9,12 +9,13 @@ import userIMG from "../../assets/user.png"
 
 export default function Dashboard() {
   const { user } = useAuth()
-  const [showModal, setShowModal] = useState(false)
+  const [showModalInstancia, setShowModalInstancia] = useState(false)
   const [instances, setInstances] = useState([])
   const [instancesBack, setInstancesBack] = useState([])
   const [QrData, setQrData] = useState(null)
   const [showQr, setShowQr] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [selectedInstance, setSelectedInstance] = useState(null)
 
   const [error, setError] = useState()
   const [errorCrear, setErrorCrear] = useState({
@@ -74,6 +75,7 @@ export default function Dashboard() {
       .then(res => {
         console.log(res.data)
         getInstance()
+        setShowModalInstancia(false)
         setQrData(null)
       })
       .catch(err => {
@@ -98,7 +100,6 @@ export default function Dashboard() {
          : 
          <>
           {instances.map((instance) => (
-            <>
             <ConnectionCard 
               title={instance.name} 
               name={instance.profileName}  
@@ -108,17 +109,19 @@ export default function Dashboard() {
               avatarUrl={instance.profilePicUrl || userIMG} 
               estado={instance.connectionStatus}
               conectarInstancia={() => conectarInstancia(instance.name)}
-              desconectarInstancia={() => setShowModal(true)}
+              desconectarInstancia={() => {
+                setSelectedInstance(instance);
+                setShowModalInstancia(true);
+              }}
             /> 
-            <ConfirmationModal 
-              isOpen={showModal} 
-              onClose={() => setShowModal(false)} 
-              onConfirm={() => desconectarInstancia(instance.name)}
-              title="Confirmar Desconexión"
-              message={`¿Estás seguro de que quieres desconectar el número ${instance.ownerJid?.split('@')[0]}?`}
-            />
-            </>
           ))}
+           <ConfirmationModal 
+              isOpen={showModalInstancia} 
+              onClose={() => setShowModalInstancia(false)} 
+              onConfirm={() => desconectarInstancia(selectedInstance?.name)}
+              title="Confirmar Desconexión"
+              message={`¿Estás seguro de que quieres desconectar el número ${selectedInstance?.ownerJid?.split('@')[0]}?`}
+            />
           </>
         }
         
