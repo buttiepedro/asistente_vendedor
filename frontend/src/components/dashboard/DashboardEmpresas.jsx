@@ -72,6 +72,7 @@ export default function Dashboard() {
   const desconectarInstancia = (instanceName) => {
     api.delete(`/instances/logout/${instanceName}`)
       .then(res => {
+        console.log(res.data)
         getInstance()
         setQrData(null)
       })
