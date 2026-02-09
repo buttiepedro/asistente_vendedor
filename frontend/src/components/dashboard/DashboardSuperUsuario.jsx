@@ -47,6 +47,12 @@ export default function Dashboard() {
     total_pages: 0,
     per_page: 5
   })
+  const [instancesPagination, setInstancesPagination] = useState({
+    current_page: 1,
+    total_items: 0,
+    total_pages: 0,    
+    per_page: 5
+  })
 
   // lista de empresa para llenar formulario
   const [listEmpresas, setListEmpresas] = useState([])
@@ -66,12 +72,17 @@ export default function Dashboard() {
 
   useEffect(() => {
     getInstanceBack()
-  }, [instancesBack.length])
+  }, [instancesPagination.current_page,instancesBack.length])
 
   const getInstanceBack = () => {
-    api.get("/instances/instancesdb")
+    api.get(`/instances/instancesdb?page=${instancesPagination.current_page}`)
       .then(res => {
-        setInstancesBack(res.data)
+        setInstancesBack(res.data.instances)
+        setInstancesPagination({
+          ...instancesPagination,
+          total_items: res.data.pagination.total_items,
+          total_pages: res.data.pagination.total_pages,
+        })
       })
       .catch(err => {
         console.error("Error en evoApi:", err)
@@ -189,15 +200,20 @@ export default function Dashboard() {
     )
   }
 
-  const handlePageChange = (page,isEmpresas) => {
-    if (!isEmpresas){
+  const handlePageChange = (page,list) => {
+    if (list === "Usuarios"){
       setUsuariosPagination({
         ...usuariosPagination,
         current_page: page
       })
-    }else{
+    }    else if(list === "Empresas"){
       setEmpresasPagination({
         ...empresasPagination,
+        current_page: page
+      })
+    } else if(list === "Instancias") {
+      setInstancesPagination({
+        ...instancesPagination,
         current_page: page
       })
     }
@@ -268,6 +284,7 @@ export default function Dashboard() {
     }
     api.post("/instances/", data)
       .then(res => {
+        console.log("Instancia creada:", res.data)
         setErrorCrearInstancia({state: false, error: ''})
         setShowFormInstances(false)
         document.body.style.overflow = "auto"
@@ -277,10 +294,7 @@ export default function Dashboard() {
       .catch(err => {
         setErrorCrearInstancia({state: true, error: err.response?.data?.msg || 'Error creando instancia'})
       }
-    ).success(() => {
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 3000);
-    });
+    )
   }
 
   const handleShowFormInstances = () => {
@@ -292,6 +306,7 @@ export default function Dashboard() {
   const eliminarInstancia = (data) => {
     api.delete(`/instances/${data.name}/${data.id}`)
       .then(res => {
+        console.log("Instancia eliminada:", res.data)
         setInstancesBack(instancesBack.filter(i => i.id !== data.id))
       })
       .catch(err => {
@@ -344,12 +359,21 @@ export default function Dashboard() {
           <h2>Lista de Instancias</h2>
           <TablaInstancias instancias={instancesBack} onEliminar={(data)=>{eliminarInstancia(data)}} />
         </div>
+        <Pagination 
+          list="Instancias"
+          currentPage={instancesPagination.current_page} 
+          totalItems={instancesPagination.total_items} 
+          totalPages={instancesPagination.total_pages} 
+          perPage={instancesPagination.per_page}
+          onPageChange={handlePageChange}
+          >
+        </Pagination>
         <div className="overflow-auto">
           <h2>Lista de Usuarios</h2>
           <TablaUsuarios usuarios={usuarios} onEliminar={eliminarUsuario} onUpdate={llenarUsuarioUpdate} />
         </div>
         <Pagination 
-          esEmpresas={false}
+          list="Usuarios"
           currentPage={usuariosPagination.current_page} 
           totalItems={usuariosPagination.total_items} 
           totalPages={usuariosPagination.total_pages} 
@@ -363,7 +387,7 @@ export default function Dashboard() {
           <TablaEmpresas empresas={empresas} onEliminar={eliminarEmpresa} onUpdate={llenarEmpresaUpdate}/>
         </div>
         <Pagination 
-          esEmpresas={true}
+          list="Empresas"
           currentPage={empresasPagination.current_page} 
           totalItems={empresasPagination.total_items} 
           totalPages={empresasPagination.total_pages} 
