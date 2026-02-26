@@ -19,7 +19,7 @@ class EvolutionService:
         "integration": "WHATSAPP-BAILEYS",
         "webhook": {
             "url": webhook_url,
-            "byEvents": True,
+            "byEvents": False,
             "base64": True,
             "headers": {
                 "autorization": "Bearer TOKEN",
