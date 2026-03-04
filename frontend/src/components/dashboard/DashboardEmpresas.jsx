@@ -16,6 +16,7 @@ export default function Dashboard() {
   const [showQr, setShowQr] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedInstance, setSelectedInstance] = useState(null)
+  const [lookerUrl, setLookerUrl] = useState("")
 
   const [error, setError] = useState()
   const [errorCrear, setErrorCrear] = useState({
@@ -33,13 +34,15 @@ export default function Dashboard() {
       .then(res => {
         setLoading(false)
         setInstances(res.data)
-        console.log(res.data)
       })
       .catch(err => {
         console.error("Error en evoApi:", err)
       }
     )   
   }
+  useEffect(() => {
+    getLookerUrl()
+  }, [])
 
   const getInstanceBack = () => {
     api.get("/instances/instancesdb")
@@ -84,8 +87,37 @@ export default function Dashboard() {
     )
   }
 
+
+  const getLookerUrl = () => {
+    api.get("companies/looker_url")
+      .then(res => {  
+        setLookerUrl(res.data.looker_url)
+      }
+      )
+      .catch(err => {
+        console.error("Error en evoApi:", err)
+      }
+    )
+  }
+
   return (
     <>
+      {lookerUrl ? (
+        <div className="flex flex-row justify-center gap-6 flex-wrap mb-8">
+        <iframe 
+          width="80%" 
+          height="1750" 
+          src={lookerUrl} 
+          frameborder="0" 
+          style={{ border: 0 }} 
+          allowFullScreen 
+          sandbox="allow-storage-access-by-user-activation allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
+          ></iframe>
+      </div>
+      )
+      :
+      ""
+      }
       <div className="">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold tracking-tight text-sky-950">Mis Lineas</h1>

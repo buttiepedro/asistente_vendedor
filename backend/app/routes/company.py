@@ -1,6 +1,6 @@
 from math import ceil
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt
 from app.extensions import db
 from app.utils.decorators import superuser_required
 from app.models import Company
@@ -60,7 +60,7 @@ def get_companies_paginated():
 @superuser_required
 def create_company():
   data = request.json
-  new_company = Company(name=data["name"], web_hook_url=data.get("web_hook_url"))  
+  new_company = Company(name=data["name"], web_hook_url=data.get("web_hook_url"), looker_url=data.get("looker_url"))  
   db.session.add(new_company)
   db.session.commit()
 
@@ -81,6 +81,14 @@ def update_company(company_id):
   data = request.json
   company.name = data.get("name", company.name)
   company.web_hook_url = data.get("web_hook_url", company.web_hook_url)
+  company.looker_url = data.get("looker_url", company.looker_url)
   db.session.commit()
 
   return jsonify({"msg": "Empresa actualizada"})
+
+@bp.get("/looker_url")
+def get_looker_url():
+  claims = get_jwt()
+  company_id = claims.get("id_company")
+  company = Company.query.get_or_404(company_id)
+  return jsonify({"looker_url": company.looker_url})

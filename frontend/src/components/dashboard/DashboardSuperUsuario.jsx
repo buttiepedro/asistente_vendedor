@@ -281,6 +281,7 @@ export default function Dashboard() {
       evolution_name: formData.get("name"),
       webhook_url: formData.get("company").split(' ')[1],
       number: formData.get("number") || null,
+      looker_url: formData.get("looker_url") || "No configurado",
     }
     api.post("/instances/", data)
       .then(res => {
