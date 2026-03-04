@@ -34,10 +34,21 @@ export default function Header() {
             <img src="https://bitautomatizacion.com.ar/wp-content/uploads/2025/12/cropped-Copy-of-LOGOPNG.png" alt="Your Company" className="h-8 w-auto" />
           </NavLink>
         </div>
+        {user?.isSuperuser ?
+        <></>
+        :
         <div className="hidden sm:ml-6 sm:block">
           <div className="flex space-x-4">
             <span className={location.pathname === "/dashboard" ? tabActivo : tanInactivo}>
               <NavLink to="/dashboard" aria-current="page">Dashboard</NavLink>
+            </span>
+          </div>
+        </div>
+        } 
+        <div className="hidden sm:ml-6 sm:block">
+          <div className="flex space-x-4">
+            <span className={location.pathname === "/lineas" ? tabActivo : tanInactivo}>
+              <NavLink to="/lineas" aria-current="page">{user?.isSuperuser ? "Dashboard" : "Lineas"}</NavLink>
             </span>
           </div>
         </div>
@@ -60,9 +71,18 @@ export default function Header() {
   </div>
 
   <el-disclosure id="mobile-menu" hidden className="absolute block sm:hidden w-48 origin-top-right rounded-br-md outline-none bg-blue-900 py-1 transition transition-discrete [--anchor-gap:--spacing(2)] data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in">
+    {user?.isSuperuser ? 
+    <></>  
+    :
     <el-dropdown  className="space-y- pt-2 pb-3 z-20">
       <button className="w-48 px-4 py-2 text-sm text-gray-300 hover:bg-white/5 cursor-pointer text-left">
         <NavLink to="/dashboard" aria-current="page" >Dashboard</NavLink>
+      </button>
+    </el-dropdown>
+    }
+    <el-dropdown  className="space-y- pt-2 pb-3 z-20">
+      <button className="w-48 px-4 py-2 text-sm text-gray-300 hover:bg-white/5 cursor-pointer text-left">
+        <NavLink to="/lineas" aria-current="page" >{user?.isSuperuser ? "Dashboard" : "Lineas"}</NavLink>
       </button>
     </el-dropdown>
   </el-disclosure>

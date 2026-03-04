@@ -23,7 +23,7 @@ export default function Login() {
     api.post("/auth/login", credentials)
       .then(res => {
         login(res.data.access_token, rememberMe)
-        navigate("/dashboard");
+        navigate("/lineas")
       })
       .catch(err => {
         setError({state: true, error: err.data})
