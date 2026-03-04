@@ -4,6 +4,7 @@ import Error404 from "../pages/Error404.jsx"
 import Login from "../pages/Login.jsx"
 import Dashboard from "../pages/Dashboard.jsx"
 import MainLayout from "../layouts/MainLayout.jsx"
+import Lineas from "../pages/Lineas.jsx"
 
 export default function AppRoutes() {
   return (
@@ -15,6 +16,7 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/lineas" element={<Lineas />} />
         </Route>
       </Route>
     </Routes>
