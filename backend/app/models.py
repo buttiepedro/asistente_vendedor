@@ -6,6 +6,7 @@ class Company(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   name = db.Column(db.String(120), nullable=False)
   web_hook_url = db.Column(db.String(255))
+  looker_url = db.Column(db.String(255))
   active = db.Column(db.Boolean, default=True)
 
   def to_dict(self):
@@ -14,6 +15,7 @@ class Company(db.Model):
       "name": self.name,
       "active": self.active,
       "web_hook_url": self.web_hook_url,
+      "looker_url": self.looker_url,
     }
 
 class Instance(db.Model):

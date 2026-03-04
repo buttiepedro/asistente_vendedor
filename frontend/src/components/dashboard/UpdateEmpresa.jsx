@@ -11,7 +11,7 @@ export default function UpdateEmpresa({showForm, setShowForm, onSubmit, empresa}
         <form 
           onSubmit={(e)=>{
             e.preventDefault(),
-            onSubmit(empresa.id,{"name": e.target.nombre_empresa.value, "web_hook_url": e.target.webhook_empresa.value})}} 
+            onSubmit(empresa.id,{"name": e.target.nombre_empresa.value, "web_hook_url": e.target.webhook_empresa.value, "looker_url": e.target.looker_empresa.value})}} 
           className="relative z-20"
         >
           <div className="absolute right-0">
@@ -51,6 +51,22 @@ export default function UpdateEmpresa({showForm, setShowForm, onSubmit, empresa}
               defaultValue={empresa?.web_hook_url || ""}
               id="webhook_empresa"
               placeholder="Webhook de la empresa"
+              className="focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md"
+            />
+          </div>
+          <div className="mb-5">
+            <label
+              htmlFor="webhook_empresa"
+              className="mb-3 block text-base font-medium text-[#07074D]"
+            >
+              Looker Studio de la Empresa
+            </label>
+            <input
+              type="text"
+              name="looker_empresa"
+              defaultValue={empresa?.looker_url || ""}
+              id="looker_empresa"
+              placeholder="Looker Studio de la empresa"
               className="focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md"
             />
           </div>

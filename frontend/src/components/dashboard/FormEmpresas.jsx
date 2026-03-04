@@ -46,6 +46,21 @@ export default function FormEmpresas({onSubmit, showForm, setShowForm}) {
               className="focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md"
             />
           </div>
+          <div className="mb-5">
+            <label
+              htmlFor="looker_url"
+              className="mb-3 block text-base font-medium text-[#07074D]"
+            >
+              Looker URL
+            </label>
+            <input
+              type="text"
+              name="looker_url"
+              id="looker_url"
+              placeholder="Ingrese la URL del Looker Studio"
+              className="focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md"
+            />
+          </div>
           <div>
             <button
               type="submit"
