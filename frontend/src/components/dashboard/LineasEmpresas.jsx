@@ -98,22 +98,27 @@ export default function LineasEmpresas() {
           ))
          : 
          <>
-          {instances.map((instance) => (
-            <ConnectionCard 
-              title={instance.name} 
-              name={instance.profileName}  
-              phone={instance.ownerJid?.split('@')[0]} 
-              followers={instance._count.Contact} 
-              messages={instance._count.Message} 
-              avatarUrl={instance.profilePicUrl || userIMG} 
-              estado={instance.connectionStatus}
-              conectarInstancia={() => conectarInstancia(instance.name)}
-              desconectarInstancia={() => {
-                setSelectedInstance(instance);
-                setShowModalInstancia(true);
-              }}
-            /> 
-          ))}
+          {instances.map((instance, index) => {
+            // Buscamos el nombre del vendedor en el array de respaldo usando el índice
+            const vendorName = instancesBack[index]?.name_vendor;
+
+            return (
+              <ConnectionCard
+                key={instance.id || index} // Importante: usar una key única
+                name={vendorName || instance.name}
+                phone={instance.ownerJid?.split('@')[0]}
+                followers={instance._count.Contact}
+                messages={instance._count.Message}
+                avatarUrl={instance.profilePicUrl || userIMG}
+                estado={instance.connectionStatus}
+                conectarInstancia={() => conectarInstancia(instance.name)}
+                desconectarInstancia={() => {
+                  setSelectedInstance(instance);
+                  setShowModalInstance(true);
+                }}
+              />
+            );
+          })}
            <ConfirmationModal 
               isOpen={showModalInstancia} 
               onClose={() => setShowModalInstancia(false)} 

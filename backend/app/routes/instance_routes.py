@@ -49,12 +49,29 @@ def create_instance():
     instance = Instance(
         name=data["name"],
         evolution_name=data["evolution_name"],
-        company_id=data["company_id"]
+        company_id=data["company_id"],
+        name_vendor=data["name_vendor"],
+        position_vendor=data["position_vendor"],
     )
     db.session.add(instance)
     db.session.commit()
 
     return jsonify({"msg": "Instancia creada"})
+
+@instance_bp.route("/<int:instance_id>", methods=["PATCH"])
+@jwt_required()
+@superuser_required
+def update_instance(instance_id):
+    data = request.json
+    instance = Instance.query.get(instance_id)
+    if not instance:
+        return jsonify({"msg": "Instancia no encontrada"}), 404
+    
+    instance.name_vendor = data.get("name_vendor", instance.name_vendor)
+    instance.position_vendor = data.get("position_vendor", instance.position_vendor)
+
+    db.session.commit()
+    return jsonify({"msg": "Instancia actualizada"})
 
 @instance_bp.route("/qr/<name>", methods=["GET", "OPTIONS"])
 @jwt_required()

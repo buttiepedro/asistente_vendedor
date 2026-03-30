@@ -12,6 +12,7 @@ import FormInstance from "./FormInstance.jsx"
 import SuccessToast from "../SuccessToast.jsx"
 import TablaInstancias from "./TablaInstacias.jsx"
 import UpdateUsuario from "./UpdateUsuario.jsx"
+import FormUpdateInstance from "./FormUpdateInstance.jsx"
 
 
 export default function Dashboard() {
@@ -53,7 +54,8 @@ export default function Dashboard() {
     total_pages: 0,    
     per_page: 5
   })
-
+  const [showUpdateInstanceForm, setShowUpdateInstanceForm] = useState(false);
+  const [instanciaSeleccionada, setInstanciaSeleccionada] = useState(null);
   // lista de empresa para llenar formulario
   const [listEmpresas, setListEmpresas] = useState([])
 
@@ -281,6 +283,8 @@ export default function Dashboard() {
       evolution_name: formData.get("name"),
       webhook_url: formData.get("company").split(' ')[1],
       number: formData.get("number") || null,
+      name_vendor: formData.get("name_vendor"),
+      position_vendor: formData.get("position_vendor"),
       looker_url: formData.get("looker_url") || "No configurado",
     }
     api.post("/instances/", data)
@@ -315,6 +319,29 @@ export default function Dashboard() {
       }
     )
   }
+
+  const llenarInstanciaUpdate = (id) => {
+    setInstanciaSeleccionada(instancesBack.find(i => i.id === id));
+    setShowUpdateInstanceForm(true);
+    document.body.style.overflow = "hidden";
+    window.scrollTo(0, 0);
+  }
+
+  const actualizarInstancia = (id, data) => {  
+    api.patch(`/instances/${id}`, data)
+      .then(res => {
+        getInstanceBack();
+        setShowUpdateInstanceForm(false);
+        document.body.style.overflow = "auto";
+      }
+      )
+      .catch(err => {
+        console.error("Error actualizando instancia:", err)
+      }
+    )
+  }
+
+
 
 
   return (
@@ -358,7 +385,7 @@ export default function Dashboard() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8 ">
         <div className="overflow-auto">
           <h2>Lista de Instancias</h2>
-          <TablaInstancias instancias={instancesBack} onEliminar={(data)=>{eliminarInstancia(data)}} />
+          <TablaInstancias instancias={instancesBack} onEliminar={(data)=>{eliminarInstancia(data)}} onUpdateInstance={llenarInstanciaUpdate} />
         </div>
         <Pagination 
           list="Instancias"
@@ -402,6 +429,7 @@ export default function Dashboard() {
         <FormInstance empresas={listEmpresas} onSubmit={crearInstancia} showForm={showFormInstances} setShowForm={setShowFormInstances} />
         <UpdateEmpresa showForm={showUpdateForm} setShowForm={setShowUpdateForm} empresa={empresaSeleccionada} onSubmit={actualizarEmpresa}/>
         <UpdateUsuario showForm={showUpdateFormUsuario} setShowForm={setShowUpdateFormUsuario} usuario={usuarioSeleccionado} onSubmit={actualizarUsuario}/>
+        <FormUpdateInstance showForm={showUpdateInstanceForm} setShowForm={setShowUpdateInstanceForm} instancia={instanciaSeleccionada} onSubmit={actualizarInstancia}/>
         <SuccessToast 
         isOpen={showToast} 
         message="¡Empresa Creada!" 

@@ -20,8 +20,10 @@ class Company(db.Model):
 
 class Instance(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  name = db.Column(db.String(120))
-  evolution_name = db.Column(db.String(120))
+  name = db.Column(db.String(120))##nombre interno de la instancia, ej: "Instancia 1"
+  evolution_name = db.Column(db.String(120))## nombre de la instancia en evolution, ej: "Empresa 1"
+  name_vendor = db.Column(db.String(120))
+  position_vendor = db.Column(db.String(120))
   company_id = db.Column(db.Integer, db.ForeignKey("company.id"))
 
   company = db.relationship("Company")
@@ -31,6 +33,8 @@ class Instance(db.Model):
       "id": self.id,
       "name": self.name,
       "evolution_name": self.evolution_name,
+      "name_vendor": self.name_vendor,
+      "position_vendor": self.position_vendor,
       "company": self.company.to_dict() if self.company else None,
     }
 

@@ -22,10 +22,43 @@ export default function FormInstance({empresas, onSubmit , showForm, setShowForm
           </div>
           <div className="mb-5 flex flex-col">
             <label
+              htmlFor="name_vendor"
+              className="mb-3 block text-base font-medium text-[#07074D]"
+            >
+              Nombre Vendedor
+            </label>
+            <input
+              type="text"
+              name="name_vendor"
+              id="name_vendor"
+              required
+              placeholder="Ingrese el nombre del vendedor"
+              className={` focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md`}
+            />
+          </div>
+          <div className="mb-5 flex flex-col">
+            <label
+              htmlFor="position_vendor"
+              className="mb-3 block text-base font-medium text-[#07074D]"
+            >
+              Cargo Vendedor
+            </label>
+            <input
+              type="text"
+              name="position_vendor"
+              id="position_vendor"
+              required
+              // onClick={handleSetErrorState}
+              placeholder="Ingrese el cargo del vendedor"
+              className={` focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md`}
+            />
+          </div>
+          <div className="mb-5 flex flex-col">
+            <label
               htmlFor="name"
               className="mb-3 block text-base font-medium text-[#07074D]"
             >
-              Nombre
+              Nombre Instancia
               {/* {error.state === true && <span className="text-red-500 text-xs flex animate-shake animate-once">{error.error}</span>} */}
             </label>
             <input
@@ -33,8 +66,8 @@ export default function FormInstance({empresas, onSubmit , showForm, setShowForm
               name="name"
               id="name"
               required
-              onClick={handleSetErrorState}
-              placeholder="Ingrese el nombre"
+              // onClick={handleSetErrorState}
+              placeholder="Ingrese el nombre de la instancia"
               className={` focus:invalid:border-red-500 w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md`}
             />
           </div>
@@ -50,7 +83,7 @@ export default function FormInstance({empresas, onSubmit , showForm, setShowForm
               type="text"
               name="number"
               id="number"
-              onClick={handleSetErrorState}
+              // onClick={handleSetErrorState}
               placeholder="Ej: 5493385409800"
               className={`w-full rounded-md border border-[#e0e0e0] bg-white py-3 px-6 text-base font-medium text-[#6B7280] outline-none focus:border-blue-900 focus:shadow-md`}
             />
