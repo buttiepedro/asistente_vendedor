@@ -112,19 +112,19 @@ def fetch_instances():
 
     # 4. Construimos la lista final siguiendo el orden de db_instances (ordenadas por ID)
     new_instances = []
-    for db_inst in db_instances:
-        # Verificamos si el nombre de la DB existe en la respuesta de Evolution
-        if db_inst.evolution_name in external_map:
-            new_instances.append(external_map[db_inst.evolution_name])
-
+    for instance  in response.json():
+        db_instance = Instance.query.filter_by(company_id=company, evolution_name=instance["name"]).all()
+        if db_instance:
+            new_instances.append(instance)
+    
     return jsonify(new_instances)
 
 @instance_bp.route("/<name>/<id>", methods=["DELETE"])
 @jwt_required()
 def delete_instance(name, id):
-    # response = EvolutionService.delete_instance(name)
-    # if response.status_code == 200:
-    instance = Instance.query.get(id)
-    db.session.delete(instance)
-    db.session.commit()
-    return jsonify({"msg": "Instancia eliminada"})
+    response = EvolutionService.delete_instance(name)
+    if response.status_code == 200:
+        instance = Instance.query.get(id)
+        db.session.delete(instance)
+        db.session.commit()
+    return jsonify(response.json())
