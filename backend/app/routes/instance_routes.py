@@ -96,35 +96,41 @@ def fetch_instances():
     claims = get_jwt()
     company_id = claims.get("id_company")
 
-    # 1. Obtenemos todas las instancias de la DB ordenadas por ID de una sola vez
+    if not company_id:
+        return jsonify({"error": "Token inválido"}), 401
+
     db_instances = Instance.query.filter_by(company_id=company_id).order_by(Instance.id.asc()).all()
-    
-    # 2. Obtenemos los datos del servicio externo
+
     response = EvolutionService.fetch_instances()
     if not response.ok:
         return jsonify({"error": "No se pudo conectar con el servicio"}), 500
-    
-    external_data = response.json()
 
-    # 3. Creamos un diccionario (mapa) para buscar los datos externos rápidamente por nombre
-    # Esto evita hacer loops anidados innecesarios
-    external_map = {inst["name"]: inst for inst in external_data}
+    try:
+        external_data = response.json()
+    except ValueError:
+        return jsonify({"error": "Respuesta inválida del servicio"}), 500
 
-    # 4. Construimos la lista final siguiendo el orden de db_instances (ordenadas por ID)
+    external_map = {inst["name"]: inst for inst in external_data if inst.get("name")}
+
     new_instances = []
     for db_inst in db_instances:
-        # Verificamos si el nombre de la DB existe en la respuesta de Evolution
         if db_inst.evolution_name in external_map:
             new_instances.append(external_map[db_inst.evolution_name])
 
     return jsonify(new_instances)
 
-@instance_bp.route("/<name>/<id>", methods=["DELETE"])
+@instance_bp.route("/<name>/<int:id>", methods=["DELETE"])
 @jwt_required()
+@superuser_required
 def delete_instance(name, id):
-    # response = EvolutionService.delete_instance(name)
-    # if response.status_code == 200:
     instance = Instance.query.get(id)
+    if not instance:
+        return jsonify({"msg": "Instancia no encontrada"}), 404
+
+    response = EvolutionService.delete_instance(name)
+    if not response.ok:
+        return jsonify({"error": "No se pudo eliminar la instancia del servicio"}), 500
+
     db.session.delete(instance)
     db.session.commit()
     return jsonify({"msg": "Instancia eliminada"})
